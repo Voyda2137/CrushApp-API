@@ -5,10 +5,10 @@
     "projekt_zpo": "bin/projekt_zpo.js"
   },
   "scripts": {
-    "build": "npx tsc -p nodejs/lambda",
-    "watch": "npx tsc -w -p nodejs/lambda",
-    "test": "npm run build && npx jest nodejs/lambda/Utils",
-    "test-ci": "npx jest nodejs/lambda/Utils",
+    "build": "npx tsc -p nodejs",
+    "watch": "npx tsc -w -p nodejs",
+    "test": "npm run build && npx jest nodejs/Utils",
+    "test-ci": "npx jest nodejs/Utils",
     "cdk": "cdk",
     "cdk-deploy": "cdk deploy",
     "deploy": "npm run build && npm run test-ci && npm run cdk-deploy"

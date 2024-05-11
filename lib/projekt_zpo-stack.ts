@@ -1,4 +1,4 @@
-import {Duration, Stack, StackProps} from 'aws-cdk-lib/core';
+import {Stack, StackProps} from 'aws-cdk-lib/core';
 import {Construct} from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda'
 import * as apigw from 'aws-cdk-lib/aws-apigateway'
@@ -98,7 +98,7 @@ export class ProjektZpoStack extends Stack {
     const registerUser = new lambda.Function(this, 'registerUser', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'register.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
         USER_POOL_ID: userPool.userPoolId
@@ -129,7 +129,7 @@ export class ProjektZpoStack extends Stack {
     const userLogin = new lambda.Function(this, 'userLogin', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'login.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
         USER_CLIENT_ID: userPoolClient.userPoolClientId
@@ -157,7 +157,7 @@ export class ProjektZpoStack extends Stack {
     const firstLogin = new lambda.Function(this, 'firstLogin', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'firstLogin.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         USER_CLIENT_ID: userPoolClient.userPoolClientId,
         USER_POOL_ID: userPool.userPoolId
@@ -183,7 +183,7 @@ export class ProjektZpoStack extends Stack {
     const changePassword = new lambda.Function(this, 'changePassword', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'changePassword.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         USER_CLIENT_ID: userPoolClient.userPoolClientId
       },
@@ -208,7 +208,7 @@ export class ProjektZpoStack extends Stack {
     const getUser = new lambda.Function(this, 'getUser', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getUser.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -231,7 +231,7 @@ export class ProjektZpoStack extends Stack {
     const addUserToIntegratorGroup = new lambda.Function(this, 'addUserToGroup', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'addUserToGroup.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -251,7 +251,7 @@ export class ProjektZpoStack extends Stack {
     const removeUserFromGroupLambda = new lambda.Function(this, 'removeUserFromGroup', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'removeUserFromGroup.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -268,7 +268,7 @@ export class ProjektZpoStack extends Stack {
     const getWorkers = new lambda.Function(this, 'getWorkers', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getWorkers.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
         USER_POOL_ID: userPool.userPoolId
@@ -300,7 +300,7 @@ export class ProjektZpoStack extends Stack {
     const editUserLambda = new lambda.Function(this, 'editUser', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'editUser.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
         USER_POOL_ID: userPool.userPoolId
@@ -361,7 +361,7 @@ export class ProjektZpoStack extends Stack {
     const integratorLambda = new lambda.Function(this, 'IntegratorLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'integrator.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName
       },
@@ -380,7 +380,7 @@ export class ProjektZpoStack extends Stack {
     const editIntegratorLambda = new lambda.Function(this, 'editIntegrator', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'editIntegrator.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName
       },
@@ -396,7 +396,7 @@ export class ProjektZpoStack extends Stack {
     const getIntegrators = new lambda.Function(this, 'GetIntegrators', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getIntegrators.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName
       },
@@ -415,7 +415,7 @@ export class ProjektZpoStack extends Stack {
     const integratorGroupLambda = new lambda.Function(this, 'IntegratorGroupLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'createIntegratorGroup.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -434,7 +434,7 @@ export class ProjektZpoStack extends Stack {
     const addIntegratorToGroupLambda = new lambda.Function(this, 'AddIntegratorToGroupLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'addIntegratorToGroup.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -452,7 +452,7 @@ export class ProjektZpoStack extends Stack {
     const removeIntegratorFromGroupLambda = new lambda.Function(this, 'removeIntegratorFromGroup', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'removeIntegratorFromGroup.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -470,7 +470,7 @@ export class ProjektZpoStack extends Stack {
     const getIntegratorGroupsLambda = new lambda.Function(this, 'GetIntegratorGroups', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getIntegratorGroups.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -490,7 +490,7 @@ export class ProjektZpoStack extends Stack {
     const editIntegratorGroupLambda = new lambda.Function(this, 'EditGroup', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'editGroup.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -507,7 +507,7 @@ export class ProjektZpoStack extends Stack {
     const getIntegratorsFromGroups = new lambda.Function(this, 'getIntegratorsFromGroups', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getIntegratorsFromGroups.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -529,7 +529,7 @@ export class ProjektZpoStack extends Stack {
     const integratorEntryLambda = new lambda.Function(this, 'IntegratorEntryLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'createIntegratorEntry.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -548,7 +548,7 @@ export class ProjektZpoStack extends Stack {
     const reportLambda = new lambda.Function(this, 'CreateReport', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'createReport.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
         BUCKET: s3ReportsBucket.bucketName
@@ -572,7 +572,7 @@ export class ProjektZpoStack extends Stack {
     const getAllReportsLambda = new lambda.Function(this, 'GetAllReports', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getAllReports.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
       },
@@ -590,7 +590,7 @@ export class ProjektZpoStack extends Stack {
     const getReportLambda = new lambda.Function(this, 'GetReport', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'getReportFromS3.handler',
-      code: lambda.Code.fromAsset('nodejs/lambda'),
+      code: lambda.Code.fromAsset('nodejs'),
       environment: {
         DYNAMODB_TABLE_NAME: integratorTable.tableName,
         BUCKET: s3ReportsBucket.bucketName
