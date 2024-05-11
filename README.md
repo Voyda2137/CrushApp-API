@@ -1,51 +1,177 @@
 
-Projekt_ZPO is a TypeScript-based AWS CDK project, demonstrating a stack (ProjektZpoStack) with various AWS services integrated. It primarily focuses on managing integrator groups, users, and their interactions within an AWS environment.
+# CrushApp-API
 
-Key Features:
+CrushApp-API is a TypeScript-based AWS CDK project, demonstrating a stack with various AWS services integrated. It focuses on managing integrators, integrator groups, users, and creating reports.
 
-User Management: Facilitates user registration, login, and retrieval of user details.
+# Tech stack
 
-Integrator Management: Allows creation and management of integrators and integrator groups.
+- Amazon CDK
+- Amazon Lambda
+- Amazon DynamoDB
+- Amazon Cognito
+- Amazon API Gateway
+- TypeScript
+- Node.js
+- Jest
 
-Data Handling: Provides functionalities for creating integrator entries and adding users to integrator groups.
+# User Endpoints:
+Create User:
 
-Technology Stack:
+- Method: POST
+- Endpoint: /register/{creatorID}
+- Integration: Lambda Function registerUser
+- Authorization: Cognito User Pool
+- Functionality: Registers a new user with optional creator ID.
 
-AWS Lambda: Serverless computing to run code without provisioning or managing servers.
+User Login:
 
-AWS CDK: Infrastructure as code to define cloud resources in familiar programming languages.
+- Method: POST
+- Endpoint: /login
+- Integration: Lambda Function userLogin
+- Authorization: Cognito User Pool
+- Functionality: Allows a user to login.
 
-TypeScript: Main programming language for writing the application logic.
+First Login:
 
-Getting Started:
+- Method: POST
+- Endpoint: /firstLogin/{userID}
+- Integration: Lambda Function firstLogin
+- Authorization: Cognito User Pool
+- Functionality: Performs actions on first user login.
 
-Clone the repository.
+Get User:
 
-Install dependencies: npm install
+- Method: GET
+- Endpoint: /getUser/{userID}
+- Integration: Lambda Function getUser
+- Authorization: Cognito User Pool
+- Functionality: Retrieves user information.
 
-Deploy the stack: cdk deploy
+Add User to Group:
 
-API Endpoints:
+- Method: POST
+- Endpoint: /group/{userID}
+- Integration: Lambda Function addUserToGroup
+- Authorization: Cognito User Pool
+- Functionality: Adds a user to a group.
 
-User Registration and Login: Handles new user registrations and user logins.
+Remove User from Group:
 
--Register
+- Method: DELETE
+- Endpoint: /group/{userID}
+- Integration: Lambda Function removeUserFromGroup
+- Authorization: Cognito User Pool
+- Functionality: Removes a user from a group.
 
--Login
+Get Workers:
 
-Integrator and Group Management: For managing integrators and their groups.
+- Method: GET
+- Endpoint: /getWorkers/{userID}
+- Integration: Lambda Function getWorkers
+- Authorization: Cognito User Pool
+- Functionality: Retrieves workers associated with a user.
 
--Create Integrator Group
+Edit User:
 
--Add Integrator to Group
+- Method: PUT
+- Endpoint: /edit/{userID}
+- Integration: Lambda Function editUser
+- Authorization: Cognito User Pool
+- Functionality: Edits user information.
+# Integrator Endpoints
 
-The `cdk.json` file tells the CDK Toolkit how to execute the app.
+Integrator:
 
-## Useful commands
+- Method: POST
+- Endpoint: /integrator/{userID}
+- Integration: Lambda Function integrator
+- Authorization: Cognito User Pool
+- Functionality: Integration functionality.
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `cdk deploy`      deploy this stack to your default AWS account/region
-* `cdk diff`        compare deployed stack with current state
-* `cdk synth`       emits the synthesized CloudFormation template
+Edit Integrator:
+
+- Method: PUT
+- Endpoint: /integrator/{userID}
+- Integration: Lambda Function editIntegrator
+- Authorization: Cognito User Pool
+- Functionality: Edits integrator information.
+
+Get Integrators:
+
+- Method: GET
+- Endpoint: /integrator/{userID}
+- Integration: Lambda Function getIntegrators
+- Authorization: Cognito User Pool
+- Functionality: Retrieves integrators.
+
+Integrator Group:
+
+- Method: POST
+- Endpoint: /integratorGroup/{userID}/add
+- Integration: Lambda Function createIntegratorGroup
+- Authorization: Cognito User Pool
+- Functionality: Adds integrator to a group.
+
+Remove Integrator from Group:
+
+- Method: DELETE
+- Endpoint: /integratorGroup/{userID}/remove
+- Integration: Lambda Function removeIntegratorFromGroup
+- Authorization: Cognito User Pool
+- Functionality: Removes integrator from a group.
+
+Get Integrator Groups:
+
+- Method: GET
+- Endpoint: /integratorGroup/{userID}
+- Integration: Lambda Function getIntegratorGroups
+- Authorization: Cognito User Pool
+- Functionality: Retrieves integrator groups.
+
+Edit Integrator Group:
+
+- Method: PUT
+- Endpoint: /integratorGroup/{userID}
+- Integration: Lambda Function editGroup
+- Authorization: Cognito User Pool
+- Functionality: Edits integrator group.
+
+Get Integrators from Groups:
+
+- Method: GET
+- Endpoint: /integratorGroup/{userID}/fromGroups
+- Integration: Lambda Function getIntegratorsFromGroups
+- Authorization: Cognito User Pool
+- Functionality: Retrieves integrators from groups.
+
+Integrator Entry:
+
+- Method: POST
+- Endpoint: /integratorEntry/{userID}
+- Integration: Lambda Function createIntegratorEntry
+- Authorization: Cognito User Pool
+- Functionality: Integrator entry functionality.
+
+Create Report:
+
+- Method: POST
+- Endpoint: /report/{requesterID}
+- Integration: Lambda Function createReport
+- Authorization: Cognito User Pool
+- Functionality: Creates a report.
+
+Get All Reports:
+
+- Method: GET
+- Endpoint: /report/{requesterID}/all
+- Integration: Lambda Function getAllReports
+- Authorization: Cognito User Pool
+- Functionality: Retrieves all reports.
+
+Get Report:
+
+- Method: GET
+- Endpoint: /report/{requesterID}
+- Integration: Lambda Function getReport
+- Authorization: Cognito User Pool
+- Functionality: Retrieves a specific report.
