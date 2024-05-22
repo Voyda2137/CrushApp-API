@@ -25,6 +25,7 @@ export const GetIntegratorsFromGroupsSuccessObjectMock = [{
     group1: [{
         PK: 'integrator1',
         SK: 'integrator',
+        isDeletedFromGroup: false,
         location: 'location',
         serialNumber: 'serial'
     }]

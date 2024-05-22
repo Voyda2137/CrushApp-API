@@ -31,11 +31,13 @@ exports.handler = async (event: APIGatewayEvent) => {
         }
         else {
             console.error('Missing login or password')
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(400, 'Missing login or password')
         }
     }
     catch (e) {
         console.error('Error while logging in: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

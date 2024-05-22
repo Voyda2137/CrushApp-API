@@ -22,11 +22,13 @@ exports.handler = async (event: APIGatewayEvent) => {
         }
         else {
             console.error('No password, username or session')
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(400, 'No password, username or session')
         }
     }
     catch (e) {
         console.error('Error: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

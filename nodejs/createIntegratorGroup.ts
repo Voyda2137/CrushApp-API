@@ -25,12 +25,14 @@ exports.handler = async (event: APIGatewayEvent) => {
         const createIntegratorGroupRequest = await createIntegratorGroup(integratorGroupName, creatorID, userID)
         if('error' in createIntegratorGroupRequest){
             console.error('Error in createIntegratorGroupRequest: ', createIntegratorGroupRequest.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(createIntegratorGroupRequest.code, createIntegratorGroupRequest.error)
         }
         return response(200, createIntegratorGroupRequest)
     }
     catch (e) {
         console.error("Error: ", e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

@@ -26,13 +26,15 @@ exports.handler = async (event: APIGatewayEvent) => {
         const createUserRequest = await createUser(userObject, creatorID)
 
         if('error' in createUserRequest){
-            console.error('Error in createUserRequest: ', JSON.stringify(createUserRequest, null, 2))
+            console.error('Error in createUserRequest: ', createUserRequest.error)
+            console.error('Request: ' + JSON.stringify(event.body, null, 2))
             return response(createUserRequest.code, createUserRequest.error)
         }
         return response(200, 'Successfully created user!')
     }
     catch (e) {
-        console.error('Error creating user: ', JSON.stringify(e, null, 2))
+        console.error('Error creating user: ' + e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

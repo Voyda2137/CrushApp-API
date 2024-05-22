@@ -27,6 +27,7 @@ exports.handler = async(event: APIGatewayEvent) => {
 
         if('error' in editIntegratorResult){
             console.error('Error in editIntegratorResult: ' + editIntegratorResult.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(editIntegratorResult.code, editIntegratorResult.error)
         }
 
@@ -35,6 +36,7 @@ exports.handler = async(event: APIGatewayEvent) => {
     }
     catch (e) {
         console.error('Error: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

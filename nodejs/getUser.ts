@@ -35,6 +35,7 @@ exports.handler = async(event: APIGatewayEvent) => {
 
         if('error' in getUser){
             console.error('Error from getUser: ' + getUser.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response()
         }
 
@@ -43,6 +44,7 @@ exports.handler = async(event: APIGatewayEvent) => {
     }
     catch (e) {
         console.error('Error in getUser ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

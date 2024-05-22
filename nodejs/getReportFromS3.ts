@@ -34,6 +34,7 @@ exports.handler = async(event: APIGatewayEvent) => {
 
         if('error' in getReport){
             console.error('Error in createReport: ' + getReport.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(getReport.code, getReport.error)
         }
 
@@ -42,6 +43,7 @@ exports.handler = async(event: APIGatewayEvent) => {
     }
     catch (e) {
         console.error('Error: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

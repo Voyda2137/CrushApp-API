@@ -27,12 +27,14 @@ exports.handler = async (event: APIGatewayEvent) => {
         const createIntegratorRequest = await createIntegrator({location: location, serialNumber: serialNumber, userID: userID, creatorID: creatorID})
         if('error' in createIntegratorRequest){
             console.error('Error in createIntegratorRequest: ', createIntegratorRequest.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(createIntegratorRequest.code, createIntegratorRequest.error)
         }
         return response(200, createIntegratorRequest)
     }
     catch (e) {
         console.error('Error adding integrator: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }
