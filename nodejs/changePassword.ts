@@ -31,16 +31,17 @@ exports.handler = async (event: APIGatewayEvent) => {
                 console.error('Error changing password: ', JSON.stringify(changePasswordRequest.error, null, 2))
                 return response(changePasswordRequest.code, changePasswordRequest.error)
             }
-
             return response(200, 'Succesfully changed user password')
         }
         else {
             console.error('No password or username')
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(400, 'No password or username')
         }
     }
     catch (e) {
         console.error('Error: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

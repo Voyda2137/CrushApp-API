@@ -27,12 +27,14 @@ exports.handler = async (event: APIGatewayEvent) => {
 
         if('error' in createEntriesRequest){
             console.error('error in createEntriesRequest: ' + createEntriesRequest.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(createEntriesRequest.code, createEntriesRequest.error)
         }
         return response(200, 'Successfully added entries')
     }
     catch (e) {
         console.error('Error while adding entries: ' + e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

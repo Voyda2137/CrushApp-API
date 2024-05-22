@@ -28,12 +28,14 @@ exports.handler = async(event: APIGatewayEvent) => {
         const workers = await getWorkers(userID)
         if('error' in workers){
             console.error('Error in workers function', workers.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(workers.code, workers.error)
         }
         return response(200, {workers: workers})
     }
     catch (e) {
         console.error('Error ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

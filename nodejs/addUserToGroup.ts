@@ -27,6 +27,7 @@ exports.handler = async (event: APIGatewayEvent) => {
 
         if('error' in addUserToGroupRequest){
             console.error('Error in addUserToGroupRequest: ' + addUserToGroupRequest.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(addUserToGroupRequest.code, addUserToGroupRequest.error)
         }
         return response(200, addUserToGroupRequest)
@@ -34,6 +35,7 @@ exports.handler = async (event: APIGatewayEvent) => {
     }
     catch (e) {
         console.error('Internal server error', e)
+        console.error('Request: ', JSON.stringify(event, null, 2))
         return response()
     }
 }

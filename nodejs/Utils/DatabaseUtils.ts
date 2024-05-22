@@ -215,24 +215,39 @@ export const createUser = async (user: IRegisterUser, creatorID: string): Promis
                     }))
                 }
             };
-
-            const params: BatchWriteItemCommandInput = {
-                RequestItems: {
-                    [table]: [
-                        {
-                            PutRequest: {
-                                Item: item
-                            }
-                        },
-                        {
-                            PutRequest: {
-                                Item: {
-                                    PK: { S: manager },
-                                    SK: { S: `user#${userParams.PK}`}
+            let params: BatchWriteItemCommandInput
+            if(!userRoles.isManager && !userRoles.isService){
+                params = {
+                    RequestItems: {
+                        [table]: [
+                            {
+                                PutRequest: {
+                                    Item: item
+                                }
+                            },
+                            {
+                                PutRequest: {
+                                    Item: {
+                                        PK: { S: manager },
+                                        SK: { S: `user#${userParams.PK}`}
+                                    }
                                 }
                             }
-                        }
-                    ]
+                        ]
+                    }
+                }
+            }
+            else {
+                params = {
+                    RequestItems: {
+                        [table]: [
+                            {
+                                PutRequest: {
+                                    Item: item
+                                }
+                            }
+                        ]
+                    }
                 }
             }
             const batchWriteItemCommand = new BatchWriteItemCommand(params)
@@ -382,7 +397,7 @@ export const getUserInfo = async (userID: string, requesterID: string): Promise<
     try {
         const requester: IUser = await getUserByID(requesterID)
 
-        if(!requester.role.isService && !requester.role.isManager){
+        if(!requester.role.isService && !requester.role.isManager && userID !== requesterID){
             return { error: 'Requester is neither a service user nor a manager', code: 403 }
         }
         if(requester.role.isManager && userID !== requesterID){
@@ -519,7 +534,6 @@ export const createIntegrator = async({location, serialNumber, userID, creatorID
         const table = process.env.DYNAMODB_TABLE_NAME || ''
 
         if(!user.role.isManager && !user.role.isService && !manager.role.isManager) return {error: `User is neither a service user nor a manager`, code: 403}
-
         const integratorID = generateId()
 
         const item: Record<string, any> = {
@@ -527,7 +541,7 @@ export const createIntegrator = async({location, serialNumber, userID, creatorID
             SK: { S: 'integrator' },
             location: { S: location },
             serialNumber: { S: serialNumber },
-            status: { N: IntegratorStatus.ON }
+            status: { N: `${IntegratorStatus.ON}` }
         }
 
         if(location && serialNumber && userID) {
@@ -552,9 +566,7 @@ export const createIntegrator = async({location, serialNumber, userID, creatorID
             }
 
             const createIntegratorCommand = new BatchWriteItemCommand(createIntegratorInput)
-
             await dynamoDB.send(createIntegratorCommand)
-
             return unmarshall(item) as Integrator
 
         }
@@ -673,7 +685,7 @@ export const addUserToIntegratorGroup = async (integratorGroupID: string, userID
             return { error: 'Error in managerHasGroupWithID: ' + managerHasGroupWithID.error, code: managerHasGroupWithID.code }
         }
 
-        const userAlreadyInGroup = await checkIfUserIsInGroup(integratorGroupID, userID)
+        const userAlreadyInGroup = await checkIfUserIsInGroup(integratorGroupID, addedUserID)
 
         if('error' in userAlreadyInGroup){
             console.error('Error in userAlreadyInGroup: ' + userAlreadyInGroup.error)
@@ -740,7 +752,7 @@ export const checkIfUserIsInGroup = async (integratorGroupID: string, userID: st
 
         const userInGroup = await dynamoDB.send(getUserInGroupCommand)
 
-        if(userInGroup?.Item){
+        if(userInGroup?.Item && Object.keys(userInGroup.Item).length > 0){
             return unmarshall(userInGroup.Item) as IGetRelationResponse
         }
         return { success: `User ${userID} not in group ${integratorGroupID}` }
@@ -882,15 +894,18 @@ export const addIntegratorToGroup = async (integratorGroupID: string, userID: st
     }
 }
 
-export const getIntegratorGroups = async (userID: string, requesterID: string): Promise<IntegratorGroup[] | IFunctionError> => {
+export const getIntegratorGroups = async (userID: string, requesterID: string): Promise<IntegratorGroup[] | IFunctionError | []> => {
     try {
         const table = process.env.DYNAMODB_TABLE_NAME || ''
 
         const requester = await getUserByID(requesterID)
-
-        if(!userID || (!requester.role.isService && !requester.role.isManager)) userID = requesterID
-
+        console.log('PRZED ', userID)
+        if(!userID || (!requester.role.isService && !requester.role.isManager)) {
+            userID = requesterID
+            console.log('PO ', userID)
+        }
         else if(requester.role.isManager && userID && requester.PK !== userID) {
+            console.log('ELSE IF ', userID)
             const worker = await getWorker(requesterID, requesterID, userID)
             if('error' in worker){
                 return {error: 'Error getting worker: ' + worker.error, code: worker.code}
@@ -905,13 +920,15 @@ export const getIntegratorGroups = async (userID: string, requesterID: string): 
                 ':sk': { S: 'group#'}
             }
         }
-
+        console.log('xd1')
         const getGroupsForUserCommand = new QueryCommand(getGroupsForUserParams)
 
         const result = await dynamoDB.send(getGroupsForUserCommand)
-
+        console.log('xd2')
         if(result.Items){
+            if(result.Items.length < 1) return []
             const groupKeys = result.Items.map(item => {
+                console.log('MAP ', JSON.stringify(item))
                 return { PK: { S: unmarshall(item).SK.substring(6) }, SK: { S: 'group' } }
             })
 
@@ -924,10 +941,10 @@ export const getIntegratorGroups = async (userID: string, requesterID: string): 
             }
 
             const getGroupsCommand = new BatchGetItemCommand(getGroupsParamas)
-
             const getGroupsResult = await dynamoDB.send(getGroupsCommand)
-
+            console.log('xd5')
             if(getGroupsResult.Responses && getGroupsResult.Responses[table] ){
+                console.log('xd6')
                 return getGroupsResult.Responses[table].map(item => unmarshall(item) as IntegratorGroup);
             }
             return {error: `Could not get batchGetItemResult.Responses for ${userID}`, code: 500}
@@ -1043,7 +1060,15 @@ export const getIntegratorsFromGroups = async (requesterID: string, userID: stri
             const result: IGetIntegratorsFromGroupsResponse[] = []
             integratorGroupsKeys.map(group => {
                 result.push({
-                    [group.PK]: integrators.filter(integrator => integrator.PK === group.SK.substring(11))
+                    [group.PK]:
+                        integrators
+                            .filter(integrator => integrator.PK === group.SK.substring(11))
+                            .map(integrator => {
+                                return {
+                                    ...integrator,
+                                    isDeletedFromGroup: group.isDeleted || false
+                                }
+                            })
                 })
             })
             return result

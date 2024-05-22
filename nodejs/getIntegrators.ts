@@ -25,11 +25,17 @@ exports.handler = async(event: APIGatewayEvent) => {
             return response(403, 'Token does not match creatorID')
         }
         const integrators = await getIntegrators(userID, integratorsOwnerID)
+        if('error' in integrators){
+            console.error('Error in integrators: ' + integrators.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
+            return response(integrators.code, integrators.error)
+        }
         return response(200, {integrators: integrators})
 
     }
     catch (e) {
         console.error('Error: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

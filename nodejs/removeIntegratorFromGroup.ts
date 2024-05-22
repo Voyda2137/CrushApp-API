@@ -30,6 +30,7 @@ exports.handler = async (event: APIGatewayEvent) => {
 
         if('error' in removeIntegratorFromGroupRequest){
             console.error('Error in removeIntegratorFromGroupRequest: ' + removeIntegratorFromGroupRequest.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(removeIntegratorFromGroupRequest.code, removeIntegratorFromGroupRequest.error)
         }
         return response(200, removeIntegratorFromGroupRequest)
@@ -37,6 +38,7 @@ exports.handler = async (event: APIGatewayEvent) => {
     }
     catch(e) {
         console.error('Error catched: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

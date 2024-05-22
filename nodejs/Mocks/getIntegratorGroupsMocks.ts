@@ -1,5 +1,10 @@
 export const resultItemsGetIntegratorGroupsMock = {
-    Items: []
+    Items: [
+        {
+            PK: { S: 'testIntegratorGroup' },
+            SK: { S: 'testIntegratorID'}
+        }
+    ]
 }
 export const batchGetItemsGetIntegratorGroupsMock = {
     Responses: {

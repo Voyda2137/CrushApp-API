@@ -1,5 +1,5 @@
-import {Integrator} from "./IIntegrator"
+import {IIntegratorInGroup} from "./IIntegratorInGroup";
 
 export interface IGetIntegratorsFromGroupsResponse {
-    [key: string]: Integrator[]
+    [key: string]: IIntegratorInGroup[]
 }

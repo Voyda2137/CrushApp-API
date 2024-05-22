@@ -29,6 +29,7 @@ exports.handler = async(event: APIGatewayEvent) => {
 
         if('error' in integratorGroups){
             console.error('Error in integratorGroups: ' + integratorGroups.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(integratorGroups.code, integratorGroups.error)
         }
 
@@ -37,6 +38,7 @@ exports.handler = async(event: APIGatewayEvent) => {
     }
     catch (e) {
         console.error('Error: ', e)
+        console.error('Request: ', JSON.stringify(event, null, 2))
         return response()
     }
 }

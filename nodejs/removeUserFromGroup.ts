@@ -27,6 +27,7 @@ exports.handler = async (event: APIGatewayEvent) => {
 
         if('error' in removeUserFromGroupRequest){
             console.error('Error in removeUserFromGroupRequest: ' + removeUserFromGroupRequest.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(removeUserFromGroupRequest.code, removeUserFromGroupRequest.error)
         }
         return response(200, removeUserFromGroupRequest)
@@ -34,6 +35,7 @@ exports.handler = async (event: APIGatewayEvent) => {
     }
     catch (e) {
         console.error('Internal server error', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }

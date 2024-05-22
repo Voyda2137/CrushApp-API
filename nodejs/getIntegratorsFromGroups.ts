@@ -32,12 +32,11 @@ exports.handler = async(event: APIGatewayEvent) => {
         }
         const groups: string[] = groupsParam.split(',')
 
-        console.log('groups: ' + groups)
-
         const integratorsInGroups = await getIntegratorsFromGroups(requesterID, userID, groups)
 
         if('error' in integratorsInGroups){
             console.error('Error in getIntegrators: ' + integratorsInGroups.error)
+            console.error('Request: ', JSON.stringify(event.body, null, 2))
             return response(integratorsInGroups.code, integratorsInGroups.error)
         }
 
@@ -46,6 +45,7 @@ exports.handler = async(event: APIGatewayEvent) => {
     }
     catch (e) {
         console.error('Error: ', e)
+        console.error('Request: ', JSON.stringify(event.body, null, 2))
         return response()
     }
 }
