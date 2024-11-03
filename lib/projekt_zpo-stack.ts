@@ -297,6 +297,38 @@ export class ProjektZpoStack extends Stack {
       authorizer: { authorizerId: userAuthorizer.ref }
     })
 
+    const getGroupsForUsers = new lambda.Function(this, 'getGroupsForUsers', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      handler: 'getGroupsForUsers.handler',
+      code: lambda.Code.fromAsset('nodejs'),
+      environment: {
+        DYNAMODB_TABLE_NAME: integratorTable.tableName,
+        USER_POOL_ID: userPool.userPoolId
+      },
+      memorySize: 1024
+    })
+
+    getGroupsForUsers.addToRolePolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        'cognito-idp:ListUsers'
+      ],
+      resources: [
+        integratorTable.tableArn,
+        userPool.userPoolArn
+      ]
+    }))
+
+    integratorTable.grantReadData(getGroupsForUsers)
+
+    const getGroupsForUsersResource = userApi.root.addResource('getGroupsForUsers')
+    const getGroupsForUsersResourceWithID = getGroupsForUsersResource.addResource('{userID}')
+
+    getGroupsForUsersResourceWithID.addMethod('GET', new apigw.LambdaIntegration(getGroupsForUsers), {
+      authorizationType: apigw.AuthorizationType.COGNITO,
+      authorizer: { authorizerId: userAuthorizer.ref }
+    })
+
     const editUserLambda = new lambda.Function(this, 'editUser', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'editUser.handler',

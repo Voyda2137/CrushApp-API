@@ -1832,3 +1832,37 @@ catch (e) {
     return { error: 'Error in removeIntegratorFromGroup: ' + e, code: 500 }
     }
 }
+
+export const getGroupsForUsers = async (requesterID: string) => {
+    try {
+        const requester = await getUserByID(requesterID)
+
+        if(!requester.role.isService && !requester.role.isManager){
+            return {error: 'User is neither a service user nor a manager', code: 403}
+        }
+
+        const workers = await getWorkers(requesterID)
+
+        if('error' in workers){
+            return {error: workers.error, code: 500}
+        }
+
+        const mappedGroups = []
+
+        for (const worker of workers) {
+            if(!worker.role.isService){
+                const workerGroups = await getIntegratorGroups(worker.PK!, requesterID)
+                const workerKey = worker.PK!
+                const workerObject = {
+                    [workerKey]: workerGroups
+                }
+                mappedGroups.push(workerObject)
+            }
+        }
+        return mappedGroups
+    }
+    catch (e) {
+        console.error('Error in getGroupsForUsers: ' + e)
+        return { error: 'Error in getGroupsForUsers: ' + e, code: 500 }
+    }
+}
