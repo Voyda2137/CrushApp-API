@@ -17,6 +17,10 @@ export const batchGetItemsGetIntegratorGroupsMock = {
         ]
     }
 }
+export const checkIfUserHasGroupMock = {
+    PK: 'test',
+    SK: 'group'
+}
 export const getIntegratorGroupsSuccessMock = [{
     PK: 'test',
     SK: 'group',

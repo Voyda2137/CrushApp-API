@@ -41,6 +41,8 @@ import {GetObjectCommand, PutObjectCommand, S3Client} from "@aws-sdk/client-s3";
 import {IEditUser} from "../Interfaces/IEditUser";
 import {IEditIntegrator} from "../Interfaces/IEditIntegrator";
 import {IEditGroup} from "../Interfaces/IEditGroup";
+import {IGetUserGroupsData} from "../Interfaces/IGetUserGroupsData";
+import {IIntegratorInGroup} from "../Interfaces/IIntegratorInGroup";
 
 const crypto = require('crypto')
 
@@ -894,18 +896,15 @@ export const addIntegratorToGroup = async (integratorGroupID: string, userID: st
     }
 }
 
-export const getIntegratorGroups = async (userID: string, requesterID: string): Promise<IntegratorGroup[] | IFunctionError | []> => {
+export const getIntegratorGroups = async (userID: string, requesterID: string): Promise<IGetUserGroupsData[] | IFunctionError | []> => {
     try {
         const table = process.env.DYNAMODB_TABLE_NAME || ''
 
         const requester = await getUserByID(requesterID)
-        console.log('PRZED ', userID)
         if(!userID || (!requester.role.isService && !requester.role.isManager)) {
             userID = requesterID
-            console.log('PO ', userID)
         }
         else if(requester.role.isManager && userID && requester.PK !== userID) {
-            console.log('ELSE IF ', userID)
             const worker = await getWorker(requesterID, requesterID, userID)
             if('error' in worker){
                 return {error: 'Error getting worker: ' + worker.error, code: worker.code}
@@ -920,15 +919,12 @@ export const getIntegratorGroups = async (userID: string, requesterID: string): 
                 ':sk': { S: 'group#'}
             }
         }
-        console.log('xd1')
         const getGroupsForUserCommand = new QueryCommand(getGroupsForUserParams)
 
         const result = await dynamoDB.send(getGroupsForUserCommand)
-        console.log('xd2')
         if(result.Items){
             if(result.Items.length < 1) return []
             const groupKeys = result.Items.map(item => {
-                console.log('MAP ', JSON.stringify(item))
                 return { PK: { S: unmarshall(item).SK.substring(6) }, SK: { S: 'group' } }
             })
 
@@ -942,9 +938,19 @@ export const getIntegratorGroups = async (userID: string, requesterID: string): 
 
             const getGroupsCommand = new BatchGetItemCommand(getGroupsParamas)
             const getGroupsResult = await dynamoDB.send(getGroupsCommand)
-            console.log('xd5')
             if(getGroupsResult.Responses && getGroupsResult.Responses[table] ){
-                console.log('xd6')
+                const groups = getGroupsResult.Responses[table].map(item => unmarshall(item) as IntegratorGroup);
+                if((!requester.role.isManager && !requester.role.isService) || requesterID !== userID) {
+                    const userGroups: IGetUserGroupsData[] = []
+                    for(const group of groups){
+                        const isUserInGroup = await checkIfUserIsInGroup(group.PK!, userID)
+                        if('PK' in isUserInGroup) {
+                            const {isDeleted} = isUserInGroup
+                            userGroups.push({...group, isDeletedFromGroup: isDeleted})
+                        }
+                    }
+                    return userGroups
+                }
                 return getGroupsResult.Responses[table].map(item => unmarshall(item) as IntegratorGroup);
             }
             return {error: `Could not get batchGetItemResult.Responses for ${userID}`, code: 500}
@@ -994,7 +1000,7 @@ export const getIntegratorGroup = async (userID: string, managerID: string, inte
 export const getIntegratorsFromGroups = async (requesterID: string, userID: string, integratorGroups: string[]): Promise<IGetIntegratorsFromGroupsResponse[] | IFunctionError> => {
     try {
         const table = process.env.DYNAMODB_TABLE_NAME || ''
-
+        if(integratorGroups.length < 1) return []
         const requester = await getUserByID(requesterID)
         if(!userID || (!requester.role.isService && !requester.role.isManager)) userID = requesterID
         else {
@@ -1012,7 +1018,10 @@ export const getIntegratorsFromGroups = async (requesterID: string, userID: stri
             return {error: 'Error getting userGroups: ' + userGroups.error, code: userGroups.code}
         }
 
-        const mappedUserGroups = userGroups.map(group => group.PK)
+        const mappedUserGroups = userGroups.map(group => {
+            if(!group.isDeletedFromGroup) return group.PK
+            return
+        })
         const integratorGroupsKeys: IGetRelationResponse[] = []
 
         for (const group of integratorGroups){
@@ -1057,20 +1066,32 @@ export const getIntegratorsFromGroups = async (requesterID: string, userID: stri
         if(getIntegratorsResult.Responses && getIntegratorsResult.Responses[table] ){
             const integrators = getIntegratorsResult.Responses[table].map(item => unmarshall(item) as Integrator);
 
-            const result: IGetIntegratorsFromGroupsResponse[] = []
-            integratorGroupsKeys.map(group => {
-                result.push({
-                    [group.PK]:
-                        integrators
-                            .filter(integrator => integrator.PK === group.SK.substring(11))
-                            .map(integrator => {
-                                return {
-                                    ...integrator,
-                                    isDeletedFromGroup: group.isDeleted || false
-                                }
-                            })
-                })
-            })
+            const groupedMap = new Map();
+
+            integratorGroupsKeys.forEach(group => {
+                const groupIntegrators = integrators
+                    .filter(integrator => integrator.PK === group.SK.substring(11))
+                    .map(integrator => ({
+                        ...integrator,
+                        isDeletedFromGroup: group.isDeleted || false
+                    }));
+
+                if (groupedMap.has(group.PK)) {
+                    // Merge unique integrators to avoid duplicates
+                    const existingIntegrators = groupedMap.get(group.PK)!;
+                    groupIntegrators.forEach(newIntegrator => {
+                        if (!existingIntegrators.some((existing: any) => existing.PK === newIntegrator.PK)) {
+                            existingIntegrators.push(newIntegrator);
+                        }
+                    });
+                } else {
+                    // If not, set the new group and its integrators
+                    groupedMap.set(group.PK, groupIntegrators);
+                }
+            });
+
+            const result = Array.from(groupedMap, ([groupPK, integrators]) => ({ [groupPK]: integrators }));
+
             return result
         }
         return {error: `Could not get batchGetItemResult.Responses for ${userID}`, code: 500}
@@ -1494,18 +1515,35 @@ export const editIntegrator = async (requesterID: string, userID: string, editDa
                 console.error('Error in integrator: ' + groups.error)
                 return {error: 'Error in integrator: ' + groups.error, code: groups.code}
             }
-            const integrators = await getIntegratorsFromGroups(requesterID, userID, groups.map(group => group.PK!))
+            const mappedGroups: string[] = []
+            for(const group of groups){
+                if(!group.isDeletedFromGroup) mappedGroups.push(group.PK!)
+            }
+            if(mappedGroups.length < 1) return {error: 'User is not in any group', code: 400}
+            const integrators = await getIntegratorsFromGroups(requesterID, userID, mappedGroups)
             if('error' in integrators){
                 console.error('Error in integrator: ' + integrators.error)
                 return {error: 'Error in integrator: ' + integrators.error, code: integrators.code}
             }
-            let integratorsArray: any[] = []
-            for(const group in integrators){
-                if(Object.prototype.hasOwnProperty.call(integrators, group)){
-                    integratorsArray = integratorsArray.concat(integrators[group])
+            const mappedIntegrators: any[] = []
+            integrators.map(group => {
+                for(const key of Object.keys(group)){
+                    // for some javascript reason value[key] needs to be assigned to a variable before pushing to an array as if it isn't it holds the value of group
+                    const keyValue = group[key]
+                    mappedIntegrators.push(keyValue)
+                }
+            })
+
+            const integratorsArray: any[] = []
+            const seenPKs = new Set<string>(); // Use a Set to track unique PKs
+            for(const group of mappedIntegrators){
+                for(const integrator of group){
+                    if(!seenPKs.has(integrator.PK)){
+                        seenPKs.add(integrator.PK)
+                        integratorsArray.push(integrator)
+                    }
                 }
             }
-
             integrator = integratorsArray.find(item => item.PK === editData.PK!)
 
             if (!integrator) {
@@ -1561,7 +1599,7 @@ export const editIntegrator = async (requesterID: string, userID: string, editDa
                     'SK': { S: 'integrator' }
                 },
                 ReturnValues: "ALL_NEW",
-                UpdateExpression: "SET #l = :location, serialNumber = :serialNumber, #s = :status"
+                UpdateExpression: "SET #s = :status"
             }
             const updateCommand = new UpdateItemCommand(editItemInput)
             const query = await dynamoDB.send(updateCommand)

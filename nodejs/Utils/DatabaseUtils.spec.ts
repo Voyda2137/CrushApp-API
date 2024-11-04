@@ -38,7 +38,7 @@ import {
 } from "../Mocks/addUserToIntegratorGroupMocks";
 import {getIntegratorMock, checkIfIntegratorIsInGroupMock, addIntegratorToGroupsuccessMock} from "../Mocks/addIntegratorToGroupMocks";
 import {
-    batchGetItemsGetIntegratorGroupsMock, getIntegratorGroupsSuccessMock,
+    batchGetItemsGetIntegratorGroupsMock, checkIfUserHasGroupMock, getIntegratorGroupsSuccessMock,
     resultItemsGetIntegratorGroupsMock
 } from "../Mocks/getIntegratorGroupsMocks";
 import {
@@ -715,6 +715,7 @@ describe('getIntegratorGroups tests', () => {
     it('should return success', async () => {
         jest.spyOn(DatabaseUtils, 'getUserByID').mockResolvedValueOnce(managerByIDMock)
         jest.spyOn(DatabaseUtils, 'getWorker').mockResolvedValueOnce(workerByIDMock)
+        jest.spyOn(DatabaseUtils, 'checkIfUserIsInGroup').mockResolvedValueOnce(checkIfUserHasGroupMock)
         DynamoDBClient.prototype.send = jest.fn().mockResolvedValueOnce(resultItemsGetIntegratorGroupsMock).mockResolvedValueOnce(batchGetItemsGetIntegratorGroupsMock)
         const result = await DatabaseUtils.getIntegratorGroups('test', 'manager')
         expect(result).toEqual(getIntegratorGroupsSuccessMock)
