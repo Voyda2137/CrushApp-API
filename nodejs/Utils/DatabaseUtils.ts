@@ -1599,7 +1599,7 @@ export const editIntegrator = async (requesterID: string, userID: string, editDa
                     'SK': { S: 'integrator' }
                 },
                 ReturnValues: "ALL_NEW",
-                UpdateExpression: "SET #s = :status"
+                UpdateExpression: "SET #l = :location, serialNumber = :serialNumber, #s = :status"
             }
             const updateCommand = new UpdateItemCommand(editItemInput)
             const query = await dynamoDB.send(updateCommand)
