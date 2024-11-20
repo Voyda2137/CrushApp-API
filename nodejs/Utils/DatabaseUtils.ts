@@ -1043,10 +1043,13 @@ export const getIntegratorsFromGroups = async (requesterID: string, userID: stri
                 integratorGroupsKeys.push(unmarshall(item) as IGetRelationResponse)
             })
         }
-
-        const integratorKeys = integratorGroupsKeys.map(integrator => {
+        const uniqueIntegratorsSet = new Set<string>()
+        for(const integrator of integratorGroupsKeys){
+            uniqueIntegratorsSet.add(integrator.SK.substring(11))
+        }
+        const integratorKeys = [...uniqueIntegratorsSet].map(integrator => {
             return {
-                PK: { S: integrator.SK.substring(11) },
+                PK: { S: integrator },
                 SK: { S: 'integrator' }
             }
         })
